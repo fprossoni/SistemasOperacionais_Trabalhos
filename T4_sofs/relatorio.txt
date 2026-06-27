@@ -1,0 +1,26 @@
+Relatório de Implementação - Sistema de Arquivos sofs
+
+1. Identificação do Grupo
+-------------------------
+- Desenvolvedores: Felipe e Marcelo
+
+2. Detalhes da Implementação
+----------------------------
+Implementamos todas as funções marcadas com TODO no arquivo src/sofs.c respeitando o layout lógico e as especificações:
+
+- Inicialização (sofs_format): Adicionamos a lógica para zerar as áreas de bitmap e i-nodes do disco virtual e inicializar o i-node 0 com tamanho igual a 1 bloco de dados contendo registros de diretório vazios (TYPEVAL_INVALIDO = 0x00). O i-node 0 e o bloco de dados correspondentes são marcados como ocupados nos respectivos bitmaps.
+- Gerenciamento de Abertura/Fechamento (sofs_open, sofs_close, sofs_create): Implementamos uma tabela de arquivos abertos (máximo de 10 simultâneos) para rastrear os i-nodes e a posição atual de leitura/escrita de cada arquivo. Em sofs_open, implementamos a resolução recursiva de softlinks (até o limite de 5 redirecionamentos para evitar ciclos).
+- Navegação de Diretório (sofs_opendir, sofs_readdir, sofs_closedir): Percorre linearmente os registros do i-node 0 (diretório raiz), buscando por registros com TypeVal != TYPEVAL_INVALIDO. Quando detectados, retorna a entrada preenchendo o tamanho obtido a partir de seu i-node.
+- Leitura e Escrita (sofs_read, sofs_write): Traduz a posição corrente em bloco lógico e deslocamento. Implementa mapeamento de ponteiros de dados diretos (dataPtr[0] e dataPtr[1]), ponteiro de indireção simples (singleIndPtr) e ponteiro de indireção dupla (doubleIndPtr). Na escrita, blocos de dados e blocos de índices intermediários (indireção) são alocados dinamicamente sob demanda.
+- Suporte a Links:
+  - Softlinks (sofs_sln): Aloca um novo i-node e um bloco de dados para gravar o nome do arquivo alvo. O registro é adicionado ao diretório com tipo TYPEVAL_LINK.
+  - Hardlinks (sofs_hln): Cria um novo registro apontando para o i-node original e incrementa o campo RefCounter. Em sofs_delete, os blocos de dados e o i-node só são liberados quando RefCounter atinge 0.
+
+3. Compilação e Execução
+------------------------
+Como as bibliotecas de bitmap e E/S de setores do disco são pré-compiladas em 32 bits (i386), utilizamos o WSL (Windows Subsystem for Linux - Ubuntu) com o pacote gcc-multilib instalado para linkar o executável de testes.
+
+Para compilar e rodar a demonstração:
+$ make clean
+$ make exemplo
+$ ./bin/exemplo
