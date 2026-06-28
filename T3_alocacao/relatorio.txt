@@ -1,0 +1,76 @@
+1. 
+contiguous:
+Frag. interna (tot): 15 unidades
+Frag. externa (avg): 12.0 unidades (maior buraco livre)
+
+paged:
+houve problema em nossa implementação com a liberação de quadros via lru
+=== Simulação: PAGINAÇÃO + LRU ===
+Memória: 64 unidades | Quadro: 4 unidades | Quadros: 16
+
+t= 1  ALLOC  pid=1  Alfa      tamanho=10   OK
+  [pag] .111............  livre=52
+t= 2  ALLOC  pid=2  Beta      tamanho=6    OK
+  [pag] .11122..........  livre=44
+t= 3  ALLOC  pid=3  Gama      tamanho=14   OK
+  [pag] .111223333......  livre=28
+t= 4  FREE   pid=2  Beta    
+  [pag] .111223333......  livre=28
+t= 5  ALLOC  pid=4  Delta     tamanho=5    OK
+  [pag] .11122333344....  livre=20
+t= 6  FREE   pid=1  Alfa    
+  [pag] .11122333344....  livre=20
+Falha de segmentação (imagem do núcleo gravada)
+
+2.
+ela falha no numero 16
+=== Simulação: ALOCAÇÃO CONTÍGUA ===
+Memória: 64 unidades | Quadro: 4 unidades | Quadros: 16
+
+t= 1  ALLOC  pid=1  Alfa      tamanho=10   OK
+  [cnt] 111.............  livre=52
+t= 2  ALLOC  pid=2  Beta      tamanho=6    OK
+  [cnt] 11122...........  livre=44
+t= 3  ALLOC  pid=3  Gama      tamanho=14   OK
+  [cnt] 111223333.......  livre=28
+t= 4  FREE   pid=2  Beta    
+  [cnt] 111..3333.......  livre=36
+t= 5  ALLOC  pid=4  Delta     tamanho=5    OK
+  [cnt] 111443333.......  livre=28
+t= 6  FREE   pid=1  Alfa    
+  [cnt] ...443333.......  livre=40
+t= 7  ALLOC  pid=5  Épsilon  tamanho=18   OK
+  [cnt] ...44333355555..  livre=20
+t= 8  FREE   pid=4  Delta   
+  [cnt] .....333355555..  livre=28
+t= 9  ALLOC  pid=6  Zeta      tamanho=8    OK
+  [cnt] 66...333355555..  livre=20
+t=10  ALLOC  pid=7  Eta       tamanho=4    OK
+  [cnt] 667..333355555..  livre=16
+t=11  FREE   pid=3  Gama    
+  [cnt] 667......55555..  livre=32
+t=12  ALLOC  pid=8  Teta      tamanho=12   OK
+  [cnt] 667888...55555..  livre=20
+t=13  FREE   pid=6  Zeta    
+  [cnt] ..7888...55555..  livre=28
+t=14  ALLOC  pid=9  Iota      tamanho=9    OK
+  [cnt] ..788899955555..  livre=16
+t=15  FREE   pid=7  Eta     
+  [cnt] ...88899955555..  livre=20
+t=16  ALLOC  pid=10 Kapa      tamanho=16   FALHOU
+  [cnt] ...88899955555..  livre=20
+t=17  FREE   pid=5  Épsilon
+  [cnt] ...888999.......  livre=40
+t=18  ALLOC  pid=11 Lambda    tamanho=7    OK
+  [cnt] 11.888999.......  livre=32
+t=19  FREE   pid=8  Teta    
+  [cnt] 11....999.......  livre=44
+t=20  ALLOC  pid=12 Mi        tamanho=20   OK
+  [cnt] 11....99922222..  livre=24
+
+--- Métricas ---
+  Alocações totais   : 12
+  Alocações falhas   : 1
+  Frag. interna (tot): 15 unidades
+  Frag. externa (avg): 12.0 unidades (maior buraco livre)
+  Memória livre final: 24 unidades
